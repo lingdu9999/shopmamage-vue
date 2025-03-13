@@ -15,7 +15,8 @@ export interface UserInfo {
 export interface State {
   token: string | null;
   userInfo: UserInfo | null;
-  menu:MenuItem[]
+  menu:MenuItem[],
+  permissionList: string[];
 }
 
 interface MenuItem {
@@ -43,7 +44,8 @@ export default createStore<State>({
   state: {
     token: vaildateUser()?.token || null,
     userInfo: vaildateUser(),
-    menu: []
+    menu: [],
+    permissionList: []
   },
   mutations: {
     SET_MENU(state,menuList:MenuItem[]){
@@ -63,6 +65,9 @@ export default createStore<State>({
       state.userInfo = null
       sessionStorage.removeItem('token')
       sessionStorage.removeItem('userInfo')
+    },
+    SET_PERMISSION(state, permissionList: string[]) {
+      state.permissionList = permissionList
     }
   }
 }) 

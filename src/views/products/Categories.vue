@@ -1,8 +1,8 @@
 <template>
   <el-container id="categories">
     <el-header>
-      <el-button @click="openCategoryDetail(null)" type="primary">增加分类</el-button>
-      <el-button @click="deleteCategories" type="primary">删除分类</el-button>
+      <el-button @click="openCategoryDetail(null)" type="primary" v-if="permissions.includes('ADD_CATEGORY')">增加分类</el-button>
+      <el-button @click="deleteCategories" type="primary" v-if="permissions.includes('DELETE_CATEGORY')">删除分类</el-button>
       
       <el-input v-model.trim="searchCategoryName" placeholder="请输入分类名" style="width: 200px;margin-left: 20px;">
         <template #append>
@@ -11,7 +11,7 @@
       </el-input>
     </el-header>
     <el-table :data="categories" @selection-change="selectionChange" max-height="calc(100vh - 250px)">
-      <el-table-column type="selection" :selectable="selectable"/>
+      <el-table-column type="selection" />
       <el-table-column prop="name" label="分类名" width="200"/>
       <el-table-column label="子类" width="600">
         <template #default="scope">
@@ -19,10 +19,10 @@
         </template>
       </el-table-column>
       <el-table-column prop="description" label="描述" min-width="500"/>
-      <el-table-column label="操作" min-width="300">
+      <el-table-column label="操作" min-width="300" v-if="permissions.includes('UPDATE_CATEGORY') || permissions.includes('DELETE_CATEGORY')">
         <template #default="scope">
-          <el-button type="primary" @click="openCategoryDetail(scope.row)" size="small">编辑</el-button>
-          <el-button type="danger" @click="deleteCategory([scope.row.categoryId])" size="small">删除</el-button>
+          <el-button type="primary" @click="openCategoryDetail(scope.row)" size="small" v-if="permissions.includes('UPDATE_CATEGORY')">编辑</el-button>
+          <el-button type="danger" @click="deleteCategory([scope.row.categoryId])" size="small"  v-if="permissions.includes('DELETE_CATEGORY')">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -38,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, App } from 'vue';
+import { ref, onMounted, App,computed } from 'vue';
 import { ElContainer, ElHeader, ElTable, ElButton, ElPagination } from 'element-plus';
 import request from '@/config/request';
 import { CATEGORY_API } from '@/config/api';
@@ -55,16 +55,16 @@ const total = ref(0); // 分类总数
 
 const store = useStore();
 
+const permissions = computed(() => store.state.permissionList);
+
 const searchCategoryName = ref<string>('');
 const selectCategoryList = ref<CategoryInfo[]>([]);
 
 const selectionChange = (selection:CategoryInfo[]) => {
-  selectCategoryList.value = selection;
+  
+  selectCategoryList.value = selection.filter(item=>item.parentId==null);
 }
 
-const selectable = (row:any) => {
-  return true; // 所有行都可以选择
-}
 
 const getSubCategories = (row:any)=>{
   return row.children.map((item:any)=>item.name).join('，');
@@ -127,6 +127,8 @@ const deleteCategories = async () => {
     showWarning("请选择要删除的分类");
     return;
   }
+  console.log(selectCategoryList.value);
+  
   let categoryIds = selectCategoryList.value.map(category => category.categoryId);
   deleteCategory(categoryIds as number[]);
 }

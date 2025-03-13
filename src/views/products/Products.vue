@@ -1,8 +1,8 @@
 <template>
   <el-container id="products">
     <el-header>
-      <el-button @click="openProductDetail('add',null)" type="primary">增加产品</el-button>
-      <el-button @click="deleteProducts" type="primary">删除产品</el-button>
+      <el-button @click="openProductDetail('add',null)" type="primary" v-if="permissions.includes('ADD_PRODUCT')">增加产品</el-button>
+      <el-button @click="deleteProducts" type="primary" v-if="permissions.includes('DELETE_PRODUCT')">删除产品</el-button>
       
       <el-select v-model="selectCategory" style="width: 200px;margin-left: 20px;" clearable placeholder="选择分类">
         <el-option
@@ -54,32 +54,34 @@
       <el-table-column label="操作" min-width="300">
         <template #default="scope">
           <el-button  @click="openProductDetail('view',scope.row)" size="small">详情</el-button>
-          <el-button type="primary" @click="openProductDetail('edit',scope.row)" size="small">编辑</el-button>
-          <el-button
-            v-if="scope.row.status === 2"
-            type="warning"
-            @click="openApprovalDialog(scope.row)"
-            size="small"
-          >
-            审核
-          </el-button>
-          <el-button
-            v-if="scope.row.status === 1"
-            type="info"
-            @click="changeProductStatus(scope.row, 3,null)"
-            size="small"
-          >
-            下架
-          </el-button>
-          <el-button
-            v-if="scope.row.status === 3"
-            type="success"
-            @click="changeProductStatus(scope.row, 1,null)"
-            size="small"
-          >
-            上架
-          </el-button>
-          <el-button type="danger" @click="deleteProduct([scope.row.productId])" size="small">删除</el-button>
+          <el-button type="primary" @click="openProductDetail('edit',scope.row)" size="small" v-if="permissions.includes('UPDATE_PRODUCT')">编辑</el-button>
+          <template v-if="permissions.includes('AUDIT_PRODUCT') || permissions.includes('UPDATE_PRODUCT')">
+            <el-button
+              v-if="scope.row.status === 2"
+              type="warning"
+              @click="openApprovalDialog(scope.row)"
+              size="small"
+            >
+              审核
+            </el-button>
+            <el-button
+              v-if="scope.row.status === 1"
+              type="info"
+              @click="changeProductStatus(scope.row, 3,null)"
+              size="small"
+            >
+              下架
+            </el-button>
+            <el-button
+              v-if="scope.row.status === 3"
+              type="success"
+              @click="changeProductStatus(scope.row, 1,null)"
+              size="small"
+            >
+              上架
+            </el-button>
+          </template>
+          <el-button type="danger" @click="deleteProduct([scope.row.productId])" size="small"  v-if="permissions.includes('DELETE_PRODUCT')">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -95,7 +97,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, App,h } from 'vue';
+import { ref, onMounted, App,computed } from 'vue';
 import { ElContainer, ElHeader, ElTable, ElButton, ElPagination, ElSelect, ElOption } from 'element-plus';
 import request from '@/config/request';
 import { PRODUCT_API, CATEGORY_API } from '@/config/api';
@@ -109,12 +111,15 @@ let products = ref([]); // 存储产品列表
 const currentPage = ref(1); // 当前页码
 const pageSize = ref(10); // 每页显示的产品数量
 const total = ref(0); // 产品总数
+const store = useStore();
+
+const permissions = computed(() => store.state.permissionList);
 
 
 const searchProductName = ref<string>('');
 const selectProductList = ref<any[]>([]);
 const selectCategory = ref<number[]>([]);
-const selectStatus = ref<number | null>(null);
+const selectStatus = ref<number|string>('');
 const categories = ref<{
   categoryId: number;
   name: string;
@@ -342,7 +347,7 @@ const changeProductStatus = async (row: any, status: any, type:any) => {
 
 const openApprovalDialog = async (row: any) => {
   try {
-    let res = await showDialog({
+    let res:any = await showDialog({
       title: '审核商品',
       visible: true,
       width: '300px',

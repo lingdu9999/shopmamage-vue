@@ -41,7 +41,7 @@
           value-format="YYYY-MM-DD"
           style="width: 250px;"
           :clearable="false"
-          :disabled-date="(time) => time.getTime() > Date.now()"
+          :disabled-date="(time:Date) => time.getTime() > Date.now()"
           v-if="!isViewMode"
         ></el-date-picker>
         <el-text v-else>{{ product.productionDate }}</el-text>

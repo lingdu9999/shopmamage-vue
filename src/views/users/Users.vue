@@ -1,8 +1,8 @@
 <template>
   <el-container id="users">
     <el-header>
-      <el-button @click="openUserDetail(null)" type="primary">增加用户</el-button>
-      <el-button @click="deleteUsers" type="primary">删除用户</el-button>
+      <el-button @click="openUserDetail(null)" type="primary" v-if="permissions.includes('ADD_USER')">增加用户</el-button>
+      <el-button @click="deleteUsers" type="primary" v-if="permissions.includes('DELETE_USER')">删除用户</el-button>
       
       <el-select v-model="selectUserType" style="width: 115px;margin-left: 20px;" placeholder="选择类型" clearable>
         <el-option label="选择类型" :value="-1" />
@@ -23,8 +23,8 @@
       <el-table-column prop="phone" label="电话" width="180"/>
       <el-table-column prop="role" label="类型" width="100">
         <template #default="scope">
-          <el-tag type="success" v-if="scope.row.role == 0">管理员</el-tag>
-          <el-tag type="primary" v-else-if="scope.row.role == 1">员工</el-tag>
+          <el-tag type="success" v-if="scope.row.role == 1">管理员</el-tag>
+          <el-tag type="primary" v-else-if="scope.row.role == 2">员工</el-tag>
           <el-tag type="danger" v-else>用户</el-tag>
         </template>
       </el-table-column>
@@ -40,11 +40,11 @@
           <el-image :src="FILE_URL + scope.row.image" style="width: 40px; height: 40px;" />
         </template>
       </el-table-column>
-      <el-table-column label="操作" v-if="getRole != 2" width="250">
+      <el-table-column label="操作" width="250" v-if="permissions.includes('UPDATE_USER') || permissions.includes('DELETE_USER') || permissions.includes('DIS_USER')">
         <template #default="scope">
-          <el-button type="primary" @click="openUserDetail(scope.row)" size="small">编辑</el-button>
-          <el-button type="danger" @click="deleteUser(scope.row.userId)" size="small" :disabled="!(getRole == 0 || (getRole < scope.row.role && getRole != 2)) || scope.row.userId == getUserId">删除</el-button>
-          <el-button @click="changeUserStatus(scope.row)" :type="scope.row.issuse ? 'info' : 'success'" size="small" :disabled="!(getRole == 0 || (getRole < scope.row.role && getRole != 2)) || scope.row.userId == getUserId">{{scope.row.issuse ? '禁用' : '启用'}}</el-button>
+          <el-button type="primary" @click="openUserDetail(scope.row)" size="small" v-if="permissions.includes('UPDATE_USER')">编辑</el-button>
+          <el-button type="danger" @click="deleteUser(scope.row.userId)" size="small" v-if="permissions.includes('DELETE_USER')">删除</el-button>
+          <el-button @click="changeUserStatus(scope.row)" :type="scope.row.issuse ? 'info' : 'success'" size="small" v-if="permissions.includes('DIS_USER')">{{scope.row.issuse ? '禁用' : '启用'}}</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -76,6 +76,7 @@ import { UserInfo } from '@/config/common';
 import { showSuccess, showError,showDialog,closeDialog,showLoading,hideLoading } from '@/utils/utils';
 import { REGISTER_URL, USER_API } from '@/config/api';
 
+
 let users = ref<UserInfo[]>([]); // 存储用户列表
 const currentPage = ref(1); // 当前页码
 const pageSize = ref(10); // 每页显示的用户数量
@@ -87,6 +88,7 @@ const searchUsername = ref<string>('');
 const selectUserType = ref<number>(-1);
 
 const selectUserList = ref<UserInfo[]>([]);
+const permissions = computed(() => store.state.permissionList);
 
 
 const selectionChange = (selection:UserInfo[]) => {

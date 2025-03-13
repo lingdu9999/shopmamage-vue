@@ -30,7 +30,7 @@
             <div class="flex-col justify-start items-center self-stretch text-wrapper_3" @click="login">
                 <span class="text_9">登入</span>
             </div>
-            <div class="flex-col justify-start items-center self-stretch text-wrapper_3" @click="registry">
+            <div class="flex-col justify-start items-center self-stretch text-wrapper_3">
                 <span class="text_9">注册</span>
             </div>
             </div>
@@ -49,6 +49,7 @@ import  router  from '@/router';
 import {setCookie,getCookie,showLoading, hideLoading, showSuccess, showWarning, showError} from '@/utils/utils';
 import { useStore } from 'vuex'
 import { LOGIN_URL } from '@/config/api';
+import { ca } from 'element-plus/es/locale/index.mjs';
 const userInfo = reactive({
   username:'',
   password:'',
@@ -96,7 +97,6 @@ async function login(){
     
     if (res.code == 200) {
       showSuccess('登录成功')
-      
       if (userInfo.remember) {
         localStorage.setItem('username',userInfo.username)
         localStorage.setItem('password',userInfo.password)
@@ -124,9 +124,7 @@ async function login(){
 }
 
 
-function registry() {
-  
-}
+
 </script>
 
 <style scoped lang="scss">

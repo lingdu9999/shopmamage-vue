@@ -156,7 +156,7 @@ const rules = reactive<FormRules>({
   parentId: [{ required: true, message: '请选择父级菜单', trigger: 'change' }]
 })
 
-const getMenu = inject('GET_MENU')
+const getMenu = inject('GET_MENU') as Function
 
 
 function getParentMenu(parentId:number){
@@ -177,7 +177,7 @@ const getMenuList = async () => {
   try {
     showLoading()
     const res = await request({
-      url: MENU_API.GET_MENU_LIST,
+      url: MENU_API.GET_ALL_MENU,
       method: 'get',
       params: {
         pageNum: currentPage.value,
@@ -198,7 +198,7 @@ const getParent = async () =>{
   const parentMenu = await request.get(MENU_API.GET_PARENT)
   console.log(parentMenu);
   
-  parentMenuOptions.value = parentMenu.data.filter(item => item.label != '主页')
+  parentMenuOptions.value = parentMenu.data.filter((item:any) => item.label != '主页')
 }
 
 // 切换菜单状态

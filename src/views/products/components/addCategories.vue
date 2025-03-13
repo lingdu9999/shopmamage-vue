@@ -64,7 +64,7 @@ function handleTagChange(tags:any){
 function addTag(val:string){
   Category.value.children.push({
     name:val,
-    categoryId:Category.value.categoryId
+    parentId:Category.value.categoryId
   } as CategoryInfo)
 }
 

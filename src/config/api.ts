@@ -6,7 +6,8 @@ export const LOGIN_URL = '/login';
 
 export const MENU_API  = {
   MENU_URL: '/menu/getAll',
-  GET_MENU_LIST:'/menu/page',
+  GET_ALL_MENU: '/menu/page',
+  GET_MENU_LIST:'/menu/getList',
   GET_PARENT:'/menu/parents',
   ADD_MENU:'/menu/add',
   UPDATE_MENU:'/menu/update',
@@ -21,9 +22,9 @@ export const USER_API = {
   DISABLE_STATUS_URL : '/users/disabled',
   SEARCH_USER_URL : '/users/search',
   GET_USER : '/users/getUserById',
+  GET_USER_ACTIVITIES : '/users/activities',
   UPDATE_PASSWORD : '/users/updatePassword'
 }
-
 
 export const CATEGORY_API = {
   GET_ALL_CATEGORY: '/category/getAll',
@@ -52,4 +53,18 @@ export const ORDER_API = {
   ADD_ORDER: '/orders/add',
   GET_ORDER_DETAILS: '/orders/detail',
   UPDATE_ORDER_STATUS: '/orders/status',
+}
+
+export const ROLES_API = {
+  GET_ALL_ROLES: '/roles/getAll',
+  GET_ALL_PERMISSIONS: '/permissions/getAll',
+  ADD_PERMISSION: '/permissions/add',
+  UPDATE_PERMISSION: '/roles/updatePermissions',
+  DELETE_PERMISSION: '/permissions/delete',
+  ADD_ROLES:'/roles/add',
+  DELETE_ROLES:'/roles/delete',
+}
+
+export const STATISTICS_API = {
+  GET_ECHARTS_DATA: '/statistics/echarts'
 }

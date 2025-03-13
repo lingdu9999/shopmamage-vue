@@ -38,11 +38,28 @@ const routes = [
         }
       },
       {
-        path:'/orders/orders',
-        component: ()=> import('@/views/orders/Orders.vue'),
+        path:'/orders',
         meta:{
           title:'订单管理'
-        }
+        },
+        children:[
+          {
+            path:'orders',
+            name:'orders',
+            component: ()=> import('@/views/orders/Orders.vue'),
+            meta:{
+              title:'订单列表'
+            }
+          },
+          {
+            path:'stats',
+            name:'stats',
+            component: ()=> import('@/views/orders/OrdersStats.vue'),
+            meta:{
+              title:'订单统计'
+            }
+          },
+        ]
       },
       {
         path:'/users',
@@ -107,6 +124,14 @@ const routes = [
             component:()=>import('@/views/setting/Menu.vue'),
             meta:{
               title:'菜单管理'
+            },
+          },
+          {
+            path:'activity',
+            name:'activity',
+            component:()=>import('@/views/setting/UserActivity.vue'),
+            meta:{
+              title:'用户行为'
             },
           }
         ]

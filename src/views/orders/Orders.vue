@@ -30,24 +30,25 @@
       <el-table-column prop="order.buyerName" label="客户名" width="120" />
       <el-table-column prop="order.buyerPhoneNumber" label="电话" width="120" />
       <el-table-column prop="order.shippingAddress" label="收货地址" min-width="200" />
-      <el-table-column prop="order.paymentMethod" label="支付方式" width="100" />
+      <el-table-column prop="order.paymentMethod" label="支付方式" width="120" />
       <el-table-column prop="order.orderDate" label="订单日期" width="160" />
-      <el-table-column prop="order.totalAmount" label="总金额" width="90" />
-      <el-table-column prop="order.status" label="状态" width="80">
+      <el-table-column prop="order.totalAmount" label="总金额" width="100" />
+      <el-table-column prop="order.status" label="状态" width="100">
         <template #default="scope">
           <el-tag :type="getOrderStatusType(scope.row.order.status)">
             {{ getOrderStatusText(scope.row.order.status) }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="300">
+      <el-table-column label="操作" width="200">
         <template #default="scope">
           <el-button size="small" @click="viewOrderDetails(scope.row)">查看详情</el-button>
           <el-button
-            v-if="scope.row.order.status === 1"
+            v-if="scope.row.order.status === 1 && permissions.includes('SHIP_ORDER')"
             size="small"
             type="primary"
             @click="openShipOrderDialog(scope.row)"
+          
           >
             发货
           </el-button>
@@ -67,10 +68,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, App } from 'vue';
+import { ref, onMounted, App ,computed} from 'vue';
 import { ElContainer, ElHeader, ElTable, ElButton, ElPagination, ElInput, ElTag, ElDatePicker, ElDialog, ElSelect, ElOption, ElDescriptions, ElDescriptionsItem, ElImage } from 'element-plus';
 import request from '@/config/request';
 import { ORDER_API, FILE_URL } from '@/config/api';
+import { useStore } from 'vuex';
 import { showSuccess, showError, showDialog, closeDialog } from '@/utils/utils';
 import OrderDetails from './components/OrderDetails.vue';
 import ShipOrderDialog from './components/ShipOrderDialog.vue';
@@ -82,6 +84,9 @@ const total = ref(0);
 const searchOrderNumber = ref('');
 const searchDateRange = ref([]);
 const searchOrderStatus = ref('');
+const store = useStore();
+
+const permissions = computed(() => store.state.permissionList);
 
 const clearSearch = () => {
   searchOrderNumber.value = '';

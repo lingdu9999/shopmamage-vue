@@ -63,6 +63,7 @@ const store = useStore();
 onMounted(async () => {
   getMenuList();
 
+  getUserPermission();
   if (!tabs.value.find(tab => tab.path === router.currentRoute.value.path)) {
     tabs.value.push({ label: router.currentRoute.value.meta.title as string, path: router.currentRoute.value.path });
   }
@@ -109,7 +110,26 @@ const getMenuList = async () => {
   }
 };
 
+async function getUserPermission() {
+  try {
+    let res:any = await request({
+      url: '/permissions/getByUser',
+      method: 'get',
+    })
+
+    if (res.code === 200) {
+      let permission = res.data.map((item:any) => item.permissionCode)
+      store.commit('SET_PERMISSION', permission)
+    } else {
+      showError(res.message)
+    }
+  }catch (error:any) {
+    showError(error)
+  }
+}
+
 provide('GET_MENU', getMenuList);
+provide('GET_USER_PERMISSION', getUserPermission as Function);
 
 // 添加退出登录方法
 const handleLogout = () => {
