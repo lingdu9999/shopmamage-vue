@@ -16,7 +16,7 @@
       </el-dropdown>
     </div>
     <el-container class="content-container">
-      <el-tabs v-model="activeTab" @tab-remove="removeTab" @tab-click="handleTabClick" :keep-alive="false" class="custom-tabs" type="card">
+      <el-tabs v-model="activeTab" @tab-remove="removeTab" @tab-click="handleTabClick" :keep-alive="true" class="custom-tabs" type="card">
         <el-tab-pane
           v-for="(tab, index) in tabs"
           :key="tab.path"
@@ -25,7 +25,7 @@
           :closable="tab.path !== '/index/home'"
           class="custom-tab-pane"
         >
-          <el-main class="custom-main">
+          <el-main class="custom-main" v-if="activeTab === tab.path" >
             <router-view v-if="activeTab === tab.path" />
           </el-main>
         </el-tab-pane>
@@ -85,7 +85,7 @@ router.afterEach((to) => {
 function handleTabClick(tab: any) {
   // 更新路由
   if (tab.props.name !== activeTab.value) {
-    activeTab.value = tab.props.name; // 更新当前激活的标签
+    // activeTab.value = tab.props.name; // 更新当前激活的标签
     router.push(tab.props.name); // 更新路由
   }
 }
@@ -119,7 +119,8 @@ async function getUserPermission() {
 
     if (res.code === 200) {
       let permission = res.data.map((item:any) => item.permissionCode)
-      store.commit('SET_PERMISSION', permission)
+      store.dispatch('setPermission', permission)
+      store.dispatch('setPermissionUrl', res.data)
     } else {
       showError(res.message)
     }
@@ -139,7 +140,7 @@ const handleLogout = () => {
     type: 'warning'
   }).then(async () => {
     // 清除用户信息
-    store.commit('CLEAR_USER_STATE');
+    store.dispatch('clearUserState');
     // 清除token
     localStorage.removeItem('token');
     showError('退出登录')

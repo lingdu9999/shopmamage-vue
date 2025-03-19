@@ -14,10 +14,10 @@
         <el-input v-model="userForm.phone" style="width: 300px;" />
       </el-form-item>
       <el-form-item label="角色" prop="role" >
-        <el-select v-model="userForm.role" placeholder="请选择角色" style="width: 300px;" :disabled="getUserRole!=0">
-          <el-option label="管理员" :value="0" />
-          <el-option label="员工" :value="1" />
-          <el-option label="用户" :value="2" />
+        <el-select v-model="userForm.role" placeholder="请选择角色" style="width: 300px;" :disabled="getUserRole!=1">
+          <el-option label="管理员" :value="1" />
+          <el-option label="员工" :value="2" />
+          <el-option label="用户" :value="3" />
         </el-select>
       </el-form-item>
       <el-form-item label="个性签名" prop="message">
@@ -70,7 +70,7 @@ const userForm = ref<UserInfo>({
   username: '',
   email: '',
   phone: '',
-  role: 0,
+  role: 1,
   image: '',
   message: '',
   issuse: 1
@@ -94,7 +94,7 @@ onMounted(()=>{
     username: '',
     email: '',
     phone: '',
-    role: 0,
+    role: 1,
     image: '',
     message: '',
     issuse: 1
@@ -114,7 +114,7 @@ const resetForm = () => {
     username: '',
     email: '',
     phone: '',
-    role: 0,
+    role: 1,
     image: '',
     message: '',
     issuse: 1

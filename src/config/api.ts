@@ -66,5 +66,6 @@ export const ROLES_API = {
 }
 
 export const STATISTICS_API = {
-  GET_ECHARTS_DATA: '/statistics/echarts'
+  GET_ECHARTS_DATA: '/statistics/echarts',
+  GET_CATEGORY_DATA: '/statistics/category',
 }

@@ -6,18 +6,18 @@
             <div class="flex-row items-center self-stretch">
                 <img
                 class="image"
-                src="https://ide.code.fun/api/image?token=673da5574ae84d00121d245f&name=cfb9052ba56bec1d41c72ee59fdf836f.png"
+                src="../assets/app_icon.ico"
                 />
-                <span class="text_2 ml-21">项目名称</span>
+                <!-- <span class="text_2 ml-21">Ma ZeYing</span> -->
             </div>
             <div class="flex-col items-start self-stretch group_2">
-                <span class="font_2 text_4">Background</span>
-                <span class="font_2 text_4 mt-9">project</span>
+                <span class="font_2 text_4">电商平台</span>
+                <span class="font_2 text_4 mt-9">后台管理系统</span>
             </div>
             <span class="self-start text_10">Ma ZeYing</span>
             </div>
             <div class="flex-col shrink-0 section_4">
-            <span class="self-center text">后台管理系统</span>
+            <!-- <span class="self-center text">登录</span> -->
             <div class="flex-col self-stretch group">
                 <span class="self-start font text_3">账号</span>
                 <ElInput type="text" class="text-wrapper" placeholder="请输入" v-model="userInfo.username"/>
@@ -30,7 +30,7 @@
             <div class="flex-col justify-start items-center self-stretch text-wrapper_3" @click="login">
                 <span class="text_9">登入</span>
             </div>
-            <div class="flex-col justify-start items-center self-stretch text-wrapper_3">
+            <div class="flex-col justify-start items-center self-stretch text-wrapper_3" v-if="false">
                 <span class="text_9">注册</span>
             </div>
             </div>
@@ -43,7 +43,7 @@
 <script setup lang="ts">
 import { ElCheckbox, ElInput,ElLoading, ElMessage } from 'element-plus';
 import { functions, isEmpty } from 'lodash';
-import { onMounted, reactive } from 'vue';
+import { onMounted, reactive,provide } from 'vue';
 import request from '@/config/request';
 import  router  from '@/router';
 import {setCookie,getCookie,showLoading, hideLoading, showSuccess, showWarning, showError} from '@/utils/utils';
@@ -60,6 +60,7 @@ const userInfo = reactive({
 const store = useStore()
 
 onMounted(()=>{
+  
   let username = localStorage.getItem('username') as string
   let password = localStorage.getItem('password') as string
   if(Number(username) !== 0 && Number(password) !== 0){
@@ -97,6 +98,8 @@ async function login(){
     
     if (res.code == 200) {
       showSuccess('登录成功')
+      
+      getUserPermission();
       if (userInfo.remember) {
         localStorage.setItem('username',userInfo.username)
         localStorage.setItem('password',userInfo.password)
@@ -106,17 +109,17 @@ async function login(){
       }
       
       if (res.data?.token) {
-        store.commit('SET_TOKEN', res.data)
+        store.dispatch('setToken', res.data)
       }
       setTimeout(() => {
         router.push('/index')
       }, 0);
     } else {
-      store.commit('CLEAR_USER_STATE')
+      store.dispatch('clearUserState')
       showError(res.message || '密码错误')
     }
   } catch (error:any) {
-    store.commit('CLEAR_USER_STATE')
+    store.dispatch('clearUserState')
     showError(error)
   } finally {
     hideLoading()
@@ -124,6 +127,26 @@ async function login(){
 }
 
 
+async function getUserPermission() {
+  try {
+    let res:any = await request({
+      url: '/permissions/getByUser',
+      method: 'get',
+    })
+
+    if (res.code === 200) {
+      let permission = res.data.map((item:any) => item.permissionCode)
+      store.dispatch('setPermission', permission)
+      store.dispatch('setPermissionUrl', res.data)
+    } else {
+      showError(res.message)
+    }
+  }catch (error:any) {
+    showError(error)
+  }
+}
+
+provide('GET_USER_PERMISSION', getUserPermission as Function);
 
 </script>
 

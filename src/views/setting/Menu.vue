@@ -107,8 +107,11 @@ import { showSuccess, showError, showDialog, closeDialog, showLoading, hideLoadi
 import request from '@/config/request'
 import {MENU_API} from '@/config/api'
 import { useStore } from 'vuex'
-import { method } from 'lodash'
-import { on } from 'events'
+import { useRoute, useRouter } from 'vue-router';
+
+
+const route = useRoute();
+const router = useRouter();
 
 
 const state = useStore();
@@ -354,8 +357,14 @@ const handleSubmit = async () => {
 
 // 初始化
 onMounted(() => {
-  getMenuList()
-  getParent()
+  
+  let routeName = router.currentRoute.value.path;
+  setTimeout(() => {
+    if (route.path === routeName) {
+      getMenuList()
+      getParent()
+    }
+  });
 })
 </script>
 

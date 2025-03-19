@@ -76,6 +76,7 @@ import { useStore } from 'vuex';
 import { showSuccess, showError, showDialog, closeDialog } from '@/utils/utils';
 import OrderDetails from './components/OrderDetails.vue';
 import ShipOrderDialog from './components/ShipOrderDialog.vue';
+import { useRoute, useRouter } from 'vue-router';
 
 const orders = ref([]);
 const currentPage = ref(1);
@@ -233,9 +234,17 @@ const formatDate = (date: Date) => {
   const day = String(date.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 };
+const route = useRoute();
+const router = useRouter();
 
 onMounted(() => {
-  getOrders();
+  
+  let routeName = router.currentRoute.value.path;
+  setTimeout(() => {
+    if (route.path === routeName) {
+      getOrders();
+    }
+  });
 });
 </script>
 

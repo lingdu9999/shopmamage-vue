@@ -82,6 +82,12 @@ import { ROLES_API, MENU_API } from '@/config/api';
 import { useStore } from 'vuex';
 import PermissionManager from './components/PermissionManager.vue';
 
+import { useRoute, useRouter } from 'vue-router';
+
+
+const route = useRoute();
+const router = useRouter();
+
 const roles = ref([]);
 const allPermissions = ref<any>([]);
 const dialogVisible = ref(false);
@@ -243,8 +249,14 @@ const openPermissionManager = () => {
 };
 
 onMounted(() => {
-  getRoles();
-  getAllPermissions();
+  
+  let routeName = router.currentRoute.value.path;
+  setTimeout(() => {
+    if (route.path === routeName) {
+      getRoles();
+      getAllPermissions();
+    }
+  });
 });
 </script>
 

@@ -30,6 +30,12 @@ import request from '@/config/request'
 import { showError, showLoading, hideLoading } from '@/utils/utils'
 import { USER_API } from '@/config/api'
 
+import { useRoute, useRouter } from 'vue-router';
+
+
+const route = useRoute();
+const router = useRouter();
+
 const activityData = ref({
   records: [],
   total: 0,
@@ -74,7 +80,12 @@ const searchActivity = () => {
 }
 
 onMounted(() => {
-  fetchData()
+  let routeName = router.currentRoute.value.path;
+  setTimeout(() => {
+    if (route.path === routeName) {
+      fetchData()
+    }
+  });
 })
 </script>
 

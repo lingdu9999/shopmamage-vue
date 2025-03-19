@@ -1,6 +1,5 @@
 <template>
   <div class="stats-page">
-    <h1>订单统计</h1>
     <div class="button-group">
       <button @click="setTimeRange('7d')">近七天</button>
       <button @click="setTimeRange('30d')">近三十天</button>
@@ -13,15 +12,19 @@
       <div id="status2-orders-stats" class="chart-container"></div>
       <div id="status4-orders-stats" class="chart-container"></div>
     </div>
+    
+    <div id="category-stats" class="chart-container" style="height: 500px;"></div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted,nextTick } from 'vue'
 import * as echarts from 'echarts'
 import request from '@/config/request'
 import { STATISTICS_API } from '@/config/api'
 import { showError } from '@/utils/utils';
+// import router from '@/router';
+import { useRoute, useRouter } from 'vue-router';
 
 const timeRange = ref('7d');
 const chartData = ref(0);
@@ -29,6 +32,7 @@ const amountData = ref(0);
 const status0OrdersData = ref(0);
 const status2OrdersData = ref(0);
 const status4OrdersData = ref(0);
+const categoryData = ref<{ [key: string]: number }>({});
 
 const fetchData = async () => {
   try {
@@ -59,13 +63,29 @@ const fetchData = async () => {
       showError(response.message);
     }
   } catch (error:any) {
+    showError(error+'1111');
+  }
+};
+
+const fetchCategoryData = async () => {
+  try {
+    const response:any = await request.get(STATISTICS_API.GET_CATEGORY_DATA);
+    if (response.code === 200) {
+      categoryData.value = response.data;
+      updateCategoryChart();
+    } else {
+      showError(response.message);
+    }
+  } catch (error:any) {
     showError(error);
   }
 };
 
 const setTimeRange = (range: string) => {
   timeRange.value = range;
-  fetchData();
+  if (timeRange.value !== null) {
+    fetchData();
+  }
 };
 
 const updateCharts = () => {
@@ -76,15 +96,13 @@ const updateCharts = () => {
   updateChart('status4-orders-stats', status4OrdersData.value, '已取消');
 };
 
-const updateChart = (elementId: string, data: number, title: string) => {
+const updateChart =  (elementId: string, data: number, title: string) => {
   const chartDom = document.getElementById(elementId)!;
   const myChart = echarts.init(chartDom);
   const option = {
     title: {
       text: title,
-      left: 'center'
-    },
-    tooltip: {
+      left: 'center',
       show: false
     },
     series: [
@@ -150,9 +168,48 @@ const updateChart = (elementId: string, data: number, title: string) => {
   myChart.setOption(option);
 };
 
+const updateCategoryChart = () => {
+  const categories = Object.keys(categoryData.value);
+  const data = Object.values(categoryData.value);
+  const chartDom = document.getElementById('category-stats')!;
+  const myChart = echarts.init(chartDom);
+  const option = {
+    title: {
+      text: '整体分类统计',
+      left: 'center'
+    },
+    tooltip: {
+      trigger: 'axis'
+    },
+    xAxis: {
+      type: 'category',
+      data: categories
+    },
+    yAxis: {
+      type: 'value'
+    },
+    series: [
+      {
+        data: data,
+        type: 'line'
+      }
+    ]
+  };
+  myChart.setOption(option);
+};
+const route = useRoute();
+const router = useRouter();
+
 onMounted(() => {
-  fetchData();
+  let routeName = router.currentRoute.value.path;
+  setTimeout(() => {
+    if (route.path === routeName) {
+      fetchData();
+      fetchCategoryData();
+    }
+  });
 });
+
 </script>
 
 <style scoped>
@@ -191,11 +248,12 @@ h1 {
 .charts-container {
   display: flex;
   justify-content: space-around;
+  flex-wrap: wrap;
 }
 
 .chart-container {
   flex: 1;
-  height: 400px;
+  height: 200px;
   margin: 20px 10px;
   border-radius: 10px;
   background-color: white;

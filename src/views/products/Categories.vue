@@ -46,6 +46,7 @@ import { useStore } from 'vuex';
 import { CategoryInfo } from '@/config/common';
 import { showSuccess,showError,showDialog,closeDialog, showWarning,showLoading,hideLoading } from '@/utils/utils';
 import addCategory from './components/addCategories.vue'
+import { useRoute, useRouter } from 'vue-router';
 
 
 let categories = ref([]); // 存储分类列表
@@ -202,8 +203,18 @@ const handleCurrentChange = (page: number) => {
   currentPage.value = page;
   getCategories();
 };
+const route = useRoute();
+const router = useRouter();
 
-onMounted(getCategories); // 组件挂载后获取分类数据
+onMounted(()=>{
+  
+  let routeName = router.currentRoute.value.path;
+  setTimeout(() => {
+    if (route.path === routeName) {
+      getCategories();
+    }
+  });
+}); // 组件挂载后获取分类数据
 </script>
 
 <style lang="scss" scoped>

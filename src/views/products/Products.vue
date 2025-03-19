@@ -106,6 +106,11 @@ import { useStore } from 'vuex';
 import { showSuccess, showError, showDialog, closeDialog, showWarning, showLoading, hideLoading } from '@/utils/utils';
 import ProductDetail from './components/productsDetail.vue';
 import setProductStatus from './components/setProductStatus.vue';
+import { useRoute, useRouter } from 'vue-router';
+
+
+const route = useRoute();
+const router = useRouter();
 
 let products = ref([]); // 存储产品列表
 const currentPage = ref(1); // 当前页码
@@ -368,9 +373,16 @@ const openApprovalDialog = async (row: any) => {
   }
 };
 
+
 onMounted(()=>{
-  getProducts(); // 组件挂载后产品数据
-  getCategories()
+  
+  let routeName = router.currentRoute.value.path;
+  setTimeout(() => {
+    if (route.path === routeName) {
+      getCategories();
+      getProducts();
+    }
+  });
 });
 </script>
 

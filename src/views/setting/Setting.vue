@@ -96,15 +96,20 @@ import { UserInfo } from '@/config/common';
 import { showLoading,hideLoading,showError,showWarning,showSuccess } from '@/utils/utils';
 import { FILE_URL,USER_API } from '@/config/api';
 import { useStore } from 'vuex';
-import { ElMessage } from 'element-plus';
 import { Plus } from '@element-plus/icons-vue'
 import  request  from '@/config/request';
+
+import { useRoute, useRouter } from 'vue-router';
+
+
+const route = useRoute();
+const router = useRouter();
 
 const store = useStore();
 
 const currentModule = ref('view');
 
-const account = ref('');
+const account = ref<any>('');
 
 const passwords = reactive({
   oldPassword: '',
@@ -131,9 +136,12 @@ const getUser = async () =>{
 }
 
 onMounted(() => {
-  console.log(123);
-  
-  getUser();
+  let routeName = router.currentRoute.value.path;
+  setTimeout(() => {
+    if (route.path === routeName) {
+      getUser();
+    }
+  });
 });
 
 const switchModule = (module: string) => {

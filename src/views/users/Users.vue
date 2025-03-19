@@ -66,7 +66,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, App,} from 'vue';
+import { ref, onMounted, computed, App,onActivated} from 'vue';
 import { ElContainer, ElHeader, ElTable, ElButton, ElPagination } from 'element-plus';
 import request from '@/config/request';
 import { FILE_URL } from '@/config/api';
@@ -75,7 +75,11 @@ import UserDetail from './components/userDetail.vue';
 import { UserInfo } from '@/config/common';
 import { showSuccess, showError,showDialog,closeDialog,showLoading,hideLoading } from '@/utils/utils';
 import { REGISTER_URL, USER_API } from '@/config/api';
+import { useRoute, useRouter } from 'vue-router';
 
+
+const route = useRoute();
+const router = useRouter();
 
 let users = ref<UserInfo[]>([]); // 存储用户列表
 const currentPage = ref(1); // 当前页码
@@ -283,7 +287,15 @@ const getUserId = computed(() => {
   return store.state.userInfo.userId;
 });
 
-onMounted(getUsers); // 组件挂载后获取用户数据
+onMounted(()=>{
+  
+  let routeName = router.currentRoute.value.path;
+  setTimeout(() => {
+    if (route.path === routeName) {
+      getUsers();
+    }
+  });
+}); // 组件挂载后获取用户数据
 </script>
 
 <style lang="scss" scoped>

@@ -17,6 +17,7 @@ export interface State {
   userInfo: UserInfo | null;
   menu:MenuItem[],
   permissionList: string[];
+  permissionUrl: any[];
 }
 
 interface MenuItem {
@@ -39,13 +40,22 @@ function vaildateUser(){
   }
 }
 
+function getPermission(){
+  try{
+    return JSON.parse(sessionStorage.getItem('permissionUrl') as string) as string[]
+  }catch(e){
+    return []
+  }
+}
+
 // 创建 store
 export default createStore<State>({
   state: {
     token: vaildateUser()?.token || null,
     userInfo: vaildateUser(),
     menu: [],
-    permissionList: []
+    permissionList: [],
+    permissionUrl: getPermission()
   },
   mutations: {
     SET_MENU(state,menuList:MenuItem[]){
@@ -68,6 +78,27 @@ export default createStore<State>({
     },
     SET_PERMISSION(state, permissionList: string[]) {
       state.permissionList = permissionList
+
+      sessionStorage.setItem('permissionList',  JSON.stringify(permissionList))
+    },
+    SET_PERMISSION_URL(state, permissionUrl: any[]) {
+      state.permissionUrl = permissionUrl
+
+      sessionStorage.setItem('permissionUrl', JSON.stringify(permissionUrl))
     }
-  }
+  },
+  actions: {
+    setToken({ commit }, userInfo: UserInfo) {
+      commit('SET_TOKEN', userInfo)
+    },
+    clearUserState({ commit }) {
+      commit('CLEAR_USER_STATE')
+    },
+    setPermission({ commit }, permissionList: string[]) {
+      commit('SET_PERMISSION', permissionList)
+    },
+    setPermissionUrl({ commit }, permissionUrl: any[]) {
+      commit('SET_PERMISSION_URL', permissionUrl)
+    }
+  },
 }) 

@@ -241,7 +241,9 @@ function removeAttribute(index: number) {
 }
 
 const handleRemove: UploadProps['onRemove'] = (uploadFile:any, uploadFiles) => {
-  product.imageUrls =product.imageUrls!.filter(item=>!item.imageUrl.includes(uploadFile.response.data))
+  console.log(uploadFile);
+  
+  product.imageUrls =product.imageUrls!.filter(item=>!item.imageUrl.includes(uploadFile.name))
 }
 
 const handlePictureCardPreview: UploadProps['onPreview'] = (uploadFile) => {

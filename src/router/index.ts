@@ -3,6 +3,7 @@ import { createMemoryHistory, createRouter,createWebHashHistory } from 'vue-rout
 import { showError} from '@/utils/utils';
 import { useStore } from 'vuex';
 import component from 'element-plus/es/components/tree-select/src/tree-select-option.mjs';
+import { log } from 'echarts/types/src/util/log.js';
 
 const routes = [
   {
@@ -24,7 +25,7 @@ const routes = [
     path:'/index',
     name:'index',
     component: ()=> import('@/components/shopManageIndex.vue'),
-    redirect:'index/home',
+    redirect:'orders/stats',
     meta:{
       title:'首页'
     },
@@ -137,6 +138,14 @@ const routes = [
         ]
       }
     ]
+  },
+  {
+    path: '/403',
+    name: 'Error403',
+    component: () => import('@/views/Error403.vue'),
+    meta: {
+      title: '403 - Forbidden'
+    }
   }
 ];
 
@@ -151,16 +160,23 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
 
   const store = useStore()
-  
-  // 获取localStorage中存储的token
-  const token = store.state.token
-  // 如果要访问的不是登录页且没有token，则重定向到登录页
-  if (to.path !== '/login' && !token) {
-    store.commit('CLEAR_USER_STATE')
-    next('/login')
-  } else {
-    next()
+  if (to.path === '/login') {
+    next();
+    return;
   }
+  
+  const token = store.state.token;
+  if (to.path !== '/login' && !token) {
+    store.dispatch('CLEAR_USER_STATE');
+    next('/login');
+    return;
+  } 
+  let permissionList = store.state.permissionUrl.map((item:any) => item.pageUrl);
+  if (!permissionList.includes(to.path) && to.path !== '/index/home' && to.path !== '/login' && to.path !== '/403') {
+    next('/403');
+    return;
+  }
+  next();
 })
 
 export default router
